@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import { CheckCircle2, AlertTriangle, X } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, X, Eye, Download } from 'lucide-react';
 import { ResumeForm, TabKey } from '@/components/resume/ResumeForm';
 import { ResumePreview } from '@/components/resume/ResumePreview';
 import { defaultExperience, defaultEducation } from '@/components/resume/form';
@@ -47,9 +47,24 @@ export default function EditorPage() {
 
   const componentRef = useRef<HTMLDivElement>(null);
 
-  // 1. Load draft from localStorage and URL query params on initial render
+  // 1. Load draft from localStorage and URL query params on initial render + calculate initial zoom
   useEffect(() => {
     setIsClient(true);
+    
+    // Set initial responsive zoom
+    if (typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 768;
+      const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+      if (isMobile) {
+        const computed = Math.min(Math.max(Number(((window.innerWidth - 32) / 794).toFixed(2)), 0.38), 0.6);
+        setZoomLevel(computed);
+      } else if (isTablet) {
+        setZoomLevel(0.65);
+      } else {
+        setZoomLevel(0.85);
+      }
+    }
+
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
       let initialData = initialResumeData;
@@ -80,6 +95,15 @@ export default function EditorPage() {
       console.error("Failed to load draft from localStorage", e);
     }
   }, []);
+
+  // Auto-fit zoom to current container width
+  const autoFitZoom = () => {
+    if (typeof window === 'undefined') return;
+    const isMobile = window.innerWidth < 768;
+    const containerWidth = isMobile ? window.innerWidth - 32 : (window.innerWidth * 0.55) - 48;
+    const computedScale = Math.min(Math.max(Number((containerWidth / 794).toFixed(2)), 0.38), 1.25);
+    setZoomLevel(computedScale);
+  };
 
   // 2. Autosave to localStorage on form changes (debounced 500ms)
   useEffect(() => {
@@ -265,7 +289,7 @@ export default function EditorPage() {
       <div className="flex flex-1 overflow-hidden flex-col md:flex-row relative box-border">
 
         {/* Left Form Panel */}
-        <div className={`w-full md:w-[48%] lg:w-[45%] xl:w-[42%] h-full overflow-y-auto border-r border-gray-200 bg-[#F8FAFC] p-6 hide-scrollbar box-border ${mobileTab === 'edit' ? 'block' : 'hidden md:block'
+        <div className={`w-full md:w-[48%] lg:w-[45%] xl:w-[42%] h-full overflow-y-auto border-r border-gray-200 bg-[#F8FAFC] p-3.5 sm:p-5 md:p-6 hide-scrollbar box-border ${mobileTab === 'edit' ? 'block' : 'hidden md:block'
           }`}>
           <div className="max-w-xl mx-auto pb-16 md:pb-8 w-full box-border">
             <ResumeForm
@@ -277,18 +301,85 @@ export default function EditorPage() {
               isSubmitting={isSubmitting}
               onDownloadClick={handleDownloadClick}
             />
+
+            {/* Mobile Inline Live Preview (Visible on phones below the form) */}
+            <div id="mobile-preview-section" className="block md:hidden mt-8 pt-6 border-t-2 border-dashed border-gray-300">
+              <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                      <Eye size={18} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-900">Live Resume Preview</h3>
+                      <p className="text-[11px] text-gray-500">Real-time updates as you type above</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={autoFitZoom}
+                    className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                  >
+                    Fit Screen
+                  </button>
+                </div>
+              </div>
+
+              {/* Mobile Scaled Preview Container */}
+              <div className="bg-slate-200/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center overflow-x-auto relative shadow-inner">
+                <div className="w-full flex justify-center pb-12 pt-2 overflow-x-auto">
+                  <ResumePreview
+                    data={formData}
+                    previewRef={componentRef}
+                    scale={zoomLevel}
+                    onSelectSection={handleSectionSelect}
+                    onDownloadClick={handleDownloadClick}
+                  />
+                </div>
+
+                {/* Mobile Bottom Action Bar */}
+                <div className="w-full pt-3 mt-2 border-t border-slate-300/80 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={zoomOut}
+                      className="w-8 h-8 rounded-lg bg-white border border-gray-300 text-gray-700 flex items-center justify-center text-xs font-bold shadow-xs active:bg-gray-100"
+                      title="Zoom Out"
+                    >
+                      -
+                    </button>
+                    <span className="text-xs font-bold text-gray-700 px-1">
+                      {Math.round(zoomLevel * 100)}%
+                    </span>
+                    <button
+                      onClick={zoomIn}
+                      className="w-8 h-8 rounded-lg bg-white border border-gray-300 text-gray-700 flex items-center justify-center text-xs font-bold shadow-xs active:bg-gray-100"
+                      title="Zoom In"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={handleDownloadClick}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs active:scale-95 cursor-pointer"
+                  >
+                    <Download size={14} />
+                    <span>Download PDF</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Right Preview Panel (Clean & Focused) */}
-        <div className={`w-full md:w-[52%] lg:w-[55%] xl:w-[58%] h-full overflow-y-auto bg-slate-200/70 p-6 md:p-8 hide-scrollbar flex flex-col items-center relative box-border ${mobileTab === 'preview' ? 'block' : 'hidden md:flex'
+        {/* Right Preview Panel (Clean & Focused for Desktop & Dedicated Mobile Preview View) */}
+        <div className={`w-full md:w-[52%] lg:w-[55%] xl:w-[58%] h-full overflow-y-auto bg-slate-200/70 p-3 sm:p-5 md:p-8 hide-scrollbar flex flex-col items-center relative box-border ${mobileTab === 'preview' ? 'block' : 'hidden md:flex'
           }`}>
 
           {/* Scaled A4 Preview */}
-          <div className="w-full flex justify-center pb-28 pt-1">
+          <div className="w-full flex justify-center pb-28 pt-1 overflow-x-auto">
             <ResumePreview
               data={formData}
-              previewRef={componentRef}
+              previewRef={mobileTab === 'preview' ? componentRef : undefined}
               scale={zoomLevel}
               onSelectSection={handleSectionSelect}
               onDownloadClick={handleDownloadClick}
@@ -301,6 +392,7 @@ export default function EditorPage() {
             onZoomIn={zoomIn}
             onZoomOut={zoomOut}
             onResetZoom={resetZoom}
+            onFitWidth={autoFitZoom}
           />
         </div>
       </div>

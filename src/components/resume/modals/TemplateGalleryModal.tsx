@@ -24,32 +24,32 @@ export const TemplateGalleryModal: React.FC<TemplateGalleryModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-xs p-4 sm:p-6 animate-fadeIn">
-      <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-200 overflow-hidden text-left">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-xs p-2 sm:p-4 md:p-6 animate-fadeIn">
+      <div className="bg-white rounded-2xl sm:rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-gray-200 overflow-hidden text-left">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-white shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-5 border-b border-gray-100 bg-white shrink-0">
           <div>
-            <div className="flex items-center gap-2 text-gray-900 font-bold text-lg">
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <div className="flex items-center gap-2 text-gray-900 font-bold text-base sm:text-lg">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                 <LayoutTemplate size={18} />
               </div>
               <span>Choose Resume Template</span>
             </div>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
               Select from 5 professionally engineered ATS-friendly resume templates.
             </p>
           </div>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-700 p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+            className="text-gray-400 hover:text-gray-700 p-1.5 sm:p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Category Filter Tabs */}
-        <div className="px-6 py-3 bg-gray-50/80 border-b border-gray-200/80 flex items-center gap-2 overflow-x-auto hide-scrollbar shrink-0">
+        <div className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-50/80 border-b border-gray-200/80 flex items-center gap-1.5 sm:gap-2 overflow-x-auto hide-scrollbar shrink-0">
           <button
             onClick={() => setTemplateFilter('all')}
             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
@@ -93,7 +93,7 @@ export const TemplateGalleryModal: React.FC<TemplateGalleryModalProps> = ({
         </div>
 
         {/* Template Grid Body */}
-        <div className="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#F8FAFC]">
+        <div className="p-3.5 sm:p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5 bg-[#F8FAFC]">
           {filteredTemplates.map((tpl) => {
             const isSelected = currentTemplate === tpl.id;
             return (
@@ -250,14 +250,14 @@ export const TemplateGalleryModal: React.FC<TemplateGalleryModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <Layers size={14} className="text-indigo-600" />
+        <div className="px-4 sm:px-6 py-3 sm:py-4 bg-white border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0">
+          <div className="flex items-center gap-2 text-[11px] sm:text-xs text-gray-500">
+            <Layers size={14} className="text-indigo-600 shrink-0" />
             <span>All templates auto-populate your live profile data</span>
           </div>
           <button
             onClick={onClose}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition-all shadow-xs cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition-all shadow-xs cursor-pointer"
           >
             Close Gallery
           </button>

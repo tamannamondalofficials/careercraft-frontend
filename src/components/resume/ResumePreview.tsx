@@ -158,20 +158,34 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
 
       {/* Scaled Preview Canvas (Protected from direct text copy) */}
       <div 
-        className="transition-transform duration-200 origin-top flex justify-center w-full select-none"
-        style={{ transform: `scale(${scale})`, userSelect: 'none', WebkitUserSelect: 'none' }}
-        onDragStart={(e) => e.preventDefault()}
+        className="flex justify-center items-start w-full select-none overflow-visible"
+        style={{
+          minHeight: `${Math.round(297 * 3.78 * scale)}px`,
+          height: `${Math.round(297 * 3.78 * scale)}px`,
+        }}
       >
         <div 
-          ref={previewRef}
-          className="resume-paper bg-white text-gray-900 shadow-2xl rounded-sm w-[210mm] min-h-[297mm] border border-gray-300/80 flex flex-col justify-between text-left box-border font-sans relative select-none pointer-events-auto"
-          style={{ width: '210mm', minHeight: '297mm', userSelect: 'none', WebkitUserSelect: 'none' }}
+          className="transition-transform duration-200 origin-top flex justify-center select-none"
+          style={{ 
+            transform: `scale(${scale})`, 
+            width: '210mm',
+            minHeight: '297mm',
+            userSelect: 'none', 
+            WebkitUserSelect: 'none' 
+          }}
+          onDragStart={(e) => e.preventDefault()}
         >
-          {template === 'executive' && <ExecutiveTemplate {...templateProps} />}
-          {template === 'modern' && <ModernTemplate {...templateProps} />}
-          {template === 'minimal' && <MinimalTemplate {...templateProps} />}
-          {template === 'elegant' && <ElegantTemplate {...templateProps} />}
-          {template === 'compact' && <CompactTemplate {...templateProps} />}
+          <div 
+            ref={previewRef}
+            className="resume-paper bg-white text-gray-900 shadow-2xl rounded-sm w-[210mm] min-h-[297mm] border border-gray-300/80 flex flex-col justify-between text-left box-border font-sans relative select-none pointer-events-auto"
+            style={{ width: '210mm', minHeight: '297mm', userSelect: 'none', WebkitUserSelect: 'none' }}
+          >
+            {template === 'executive' && <ExecutiveTemplate {...templateProps} />}
+            {template === 'modern' && <ModernTemplate {...templateProps} />}
+            {template === 'minimal' && <MinimalTemplate {...templateProps} />}
+            {template === 'elegant' && <ElegantTemplate {...templateProps} />}
+            {template === 'compact' && <CompactTemplate {...templateProps} />}
+          </div>
         </div>
       </div>
     </div>

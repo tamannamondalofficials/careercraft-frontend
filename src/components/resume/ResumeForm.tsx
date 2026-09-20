@@ -14,7 +14,8 @@ import {
   Download,
   CloudUpload,
   Loader2,
-  Check
+  Check,
+  Eye
 } from 'lucide-react';
 import {
   PersonalInfoSection,
@@ -109,10 +110,24 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
       )}
 
       {/* Progress & Live Tracker */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs flex flex-col gap-2.5">
+      <div className="bg-white border border-gray-200 rounded-2xl p-3.5 sm:p-4 shadow-xs flex flex-col gap-2.5">
         <div className="flex items-center justify-between text-xs font-semibold text-gray-600">
           <span>{completedSections} of 5 sections completed</span>
-          <span className="text-indigo-600 font-bold">{Math.round((completedSections / 5) * 100)}%</span>
+          <div className="flex items-center gap-2">
+            <span className="text-indigo-600 font-bold">{Math.round((completedSections / 5) * 100)}%</span>
+            <button
+              type="button"
+              onClick={() => {
+                const elem = document.getElementById('mobile-preview-section');
+                if (elem) elem.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="md:hidden text-[11px] font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer"
+              title="Jump to live preview at the bottom"
+            >
+              <Eye size={12} />
+              <span>Preview ↓</span>
+            </button>
+          </div>
         </div>
         
         <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
@@ -124,7 +139,7 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
       </div>
 
       {/* Tab Navigation Stepper */}
-      <div className="flex items-center gap-1.5 p-1.5 bg-gray-100/90 rounded-2xl border border-gray-200 overflow-x-auto hide-scrollbar">
+      <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 bg-gray-100/90 rounded-2xl border border-gray-200 overflow-x-auto hide-scrollbar touch-pan-x">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -141,7 +156,7 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 min-w-[90px] py-2 px-2.5 rounded-xl font-medium text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              className={`flex-1 min-w-[76px] sm:min-w-[90px] py-1.5 sm:py-2 px-1.5 sm:px-2.5 rounded-xl font-medium text-xs flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                 isActive 
                   ? 'bg-white text-indigo-700 shadow-xs font-semibold' 
                   : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
@@ -150,8 +165,8 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
               <Icon size={14} className={isActive ? 'text-indigo-600' : 'text-gray-400'} />
               <span>{tab.label}</span>
               {isDone && (
-                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] shrink-0 font-bold">
-                  <Check size={10} strokeWidth={3} />
+                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[9px] sm:text-[10px] shrink-0 font-bold">
+                  <Check size={9} strokeWidth={3} />
                 </span>
               )}
             </button>
@@ -183,26 +198,26 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
       </div>
 
       {/* Stepper Navigation Footer Buttons */}
-      <div className="flex flex-wrap items-center justify-between pt-3 pb-6 border-t border-gray-200 gap-3">
+      <div className="flex flex-wrap items-center justify-between pt-3 pb-6 border-t border-gray-200 gap-2 sm:gap-3">
         <Button
           type="button"
           variant="outline"
           onClick={goToPrevTab}
           disabled={currentTabIndex === 0}
-          className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2.5 rounded-xl border-gray-300 disabled:opacity-40 cursor-pointer"
+          className="flex items-center gap-1 sm:gap-1.5 text-xs font-semibold px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border-gray-300 disabled:opacity-40 cursor-pointer"
         >
           <ArrowLeft size={14} />
-          Previous
+          <span>Previous</span>
         </Button>
 
-        <div className="flex items-center gap-2.5 ml-auto">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 ml-auto">
           {onSubmit && (
             <Button
               type="button"
               variant="outline"
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 rounded-xl border-emerald-300 bg-emerald-50/80 hover:bg-emerald-100 text-emerald-800 shadow-2xs cursor-pointer disabled:opacity-50 transition-all"
+              className="flex items-center gap-1 sm:gap-1.5 text-xs font-bold px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border-emerald-300 bg-emerald-50/80 hover:bg-emerald-100 text-emerald-800 shadow-2xs cursor-pointer disabled:opacity-50 transition-all"
               title="Submit & Calculate ATS Score"
             >
               {isSubmitting ? (
@@ -210,7 +225,8 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
               ) : (
                 <CloudUpload size={14} className="text-emerald-700" />
               )}
-              <span>{isSubmitting ? 'Saving...' : 'Submit & Score'}</span>
+              <span className="hidden sm:inline">{isSubmitting ? 'Saving...' : 'Submit & Score'}</span>
+              <span className="sm:hidden">Score</span>
             </Button>
           )}
 
@@ -219,9 +235,9 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
               type="button"
               variant="primary"
               onClick={goToNextTab}
-              className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
+              className="flex items-center gap-1 sm:gap-1.5 text-xs font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
             >
-              Next Section
+              <span>Next</span>
               <ArrowRight size={14} />
             </Button>
           ) : (
@@ -230,10 +246,10 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
                 type="button"
                 variant="primary"
                 onClick={onDownloadClick}
-                className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
+                className="flex items-center gap-1 sm:gap-1.5 text-xs font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
               >
                 <Download size={14} />
-                Download PDF
+                <span>Download PDF</span>
               </Button>
             )
           )}

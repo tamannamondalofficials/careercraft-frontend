@@ -51,66 +51,66 @@ export const AtsScoreModal: React.FC<AtsScoreModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-2xl w-full overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-2 sm:p-4 md:p-6 animate-fadeIn">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-100 max-w-2xl w-full overflow-hidden flex flex-col max-h-[92vh]">
         {/* Top Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50/80">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-              <ShieldCheck size={20} />
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50/80 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs shrink-0">
+              <ShieldCheck size={18} />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-900">
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 leading-tight">
                 Submission & ATS Compatibility Report
               </h3>
-              <p className="text-xs text-gray-500">
+              <p className="text-[11px] sm:text-xs text-gray-500">
                 Analysis for {formData.full_name || 'Your Resume'}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer shrink-0"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-5 flex-1 text-left">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 flex-1 text-left">
           
           {/* Success Database Banner */}
-          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs text-emerald-900">
-            <div className="flex items-center gap-2">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 sm:p-3.5 flex items-center justify-between gap-2.5 text-xs text-emerald-900">
+            <div className="flex items-center gap-2 min-w-0">
               <Database size={16} className="text-emerald-600 shrink-0" />
-              <span>
-                <strong>Successfully saved to database!</strong> {backendId ? `(Record ID: #${backendId})` : ''}
+              <span className="truncate sm:whitespace-normal">
+                <strong>Saved to database!</strong> {backendId ? `(ID: #${backendId})` : ''}
               </span>
             </div>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 shrink-0">
+            <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 shrink-0">
               Synced & Stored
             </span>
           </div>
 
           {/* Hero Score Showcase */}
-          <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-5">
-            <div className="flex items-center gap-4 text-left">
+          <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-5">
+            <div className="flex items-center gap-3.5 sm:gap-4 text-left w-full sm:w-auto">
               {/* Score Ring */}
-              <div className={`w-18 h-18 rounded-2xl border-2 flex flex-col items-center justify-center font-black shrink-0 ${getScoreColor(atsResult.percentage)} shadow-md`}>
-                <span className="text-2xl leading-none font-extrabold">{atsResult.percentage}</span>
-                <span className="text-[10px] uppercase tracking-wider font-bold">/ 100</span>
+              <div className={`w-16 h-16 sm:w-18 sm:h-18 rounded-2xl border-2 flex flex-col items-center justify-center font-black shrink-0 ${getScoreColor(atsResult.percentage)} shadow-md`}>
+                <span className="text-xl sm:text-2xl leading-none font-extrabold">{atsResult.percentage}</span>
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider font-bold">/ 100</span>
               </div>
 
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="text-lg font-bold text-white">
+                  <h4 className="text-base sm:text-lg font-bold text-white">
                     ATS Score: {atsResult.percentage}%
                   </h4>
-                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${atsResult.color}`}>
+                  <span className={`text-[11px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 rounded-full border ${atsResult.color}`}>
                     {atsResult.rating}
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 mt-1 max-w-sm leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-slate-300 mt-1 max-w-sm leading-relaxed">
                   {atsResult.percentage >= 90
                     ? 'Outstanding! Your resume structure, keywords, and metrics are fully optimized for recruiter ATS scanners.'
                     : 'Good foundation. Review the checkpoints below to boost your score to 95%+.'
@@ -125,7 +125,7 @@ export const AtsScoreModal: React.FC<AtsScoreModalProps> = ({
                 onClose();
                 onDownload();
               }}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs shadow-md transition-all cursor-pointer shrink-0"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs shadow-md transition-all cursor-pointer shrink-0"
             >
               <Download size={15} />
               <span>Download PDF</span>
@@ -134,12 +134,12 @@ export const AtsScoreModal: React.FC<AtsScoreModalProps> = ({
 
           {/* 5 ATS Checkpoints Grid */}
           <div>
-            <h4 className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-3 flex items-center gap-1.5">
+            <h4 className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-2.5 sm:mb-3 flex items-center gap-1.5">
               <Sparkles size={14} className="text-indigo-600" />
               Detailed ATS Breakdown
             </h4>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
               {atsResult.checks.map((check) => (
                 <div 
                   key={check.id}
@@ -174,35 +174,35 @@ export const AtsScoreModal: React.FC<AtsScoreModalProps> = ({
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3">
-          {onOpenStore && (
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0">
+          {onOpenStore ? (
             <button
               onClick={() => {
                 onClose();
                 onOpenStore();
               }}
-              className="text-xs font-semibold text-indigo-700 hover:text-indigo-900 transition-colors cursor-pointer"
+              className="text-xs font-semibold text-indigo-700 hover:text-indigo-900 transition-colors cursor-pointer text-center sm:text-left"
             >
               View in Resume Store →
             </button>
-          )}
+          ) : <div />}
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-gray-200/70 transition-colors cursor-pointer"
+              className="flex-1 sm:flex-none px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-gray-200/70 transition-colors cursor-pointer text-center"
             >
-              Continue Editing
+              Edit More
             </button>
             <button
               onClick={() => {
                 onClose();
                 onDownload();
               }}
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-all cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-all cursor-pointer"
             >
               <Download size={14} />
-              <span>Download Free PDF</span>
+              <span>Download PDF</span>
             </button>
           </div>
         </div>
