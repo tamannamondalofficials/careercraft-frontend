@@ -6,23 +6,33 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 }
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className = '', label, error, ...props }, ref) => {
+  ({ className = '', label, error, required, id, name, ...props }, ref) => {
+    const inputId = id || name;
+
     return (
-      <div className="w-full flex flex-col gap-1.5 mb-4">
+      <div className="w-full flex flex-col items-start mb-3">
         {label && (
-          <label className="text-sm font-semibold text-[color:var(--text-muted)] tracking-wide uppercase text-xs">
+          <label 
+            htmlFor={inputId} 
+            className="text-xs md:text-sm font-medium text-gray-700 text-left mb-1 flex items-center gap-1"
+          >
             {label}
+            {required && <span className="text-red-500 font-bold" title="Required">*</span>}
           </label>
         )}
         <textarea
+          id={inputId}
+          name={name}
           ref={ref}
-          className={`px-4 py-3 rounded-lg border border-[color:var(--text-muted)] border-opacity-30 bg-[color:var(--background)] bg-opacity-50 text-[color:var(--foreground)] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[color:var(--primary)] focus:border-transparent transition-all shadow-sm min-h-[120px] resize-y ${className}`}
+          required={required}
+          className={`w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm placeholder:text-gray-400 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 min-h-[100px] resize-y transition-all ${className}`}
           {...props}
         />
-        {error && <span className="text-xs text-red-500 font-medium">{error}</span>}
+        {error && <span className="text-xs text-red-500 font-medium mt-1">{error}</span>}
       </div>
     );
   }
 );
 
 Textarea.displayName = 'Textarea';
+

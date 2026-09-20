@@ -11,6 +11,18 @@ export interface Experience {
   display_order: number;
 }
 
+export interface Education {
+  institution_name: string;
+  institution_location: string;
+  degree: string;
+  field_of_study: string;
+  start_date: string;
+  end_date: string;
+  currently_studying: boolean;
+  description: string;
+  display_order: number;
+}
+
 export interface ResumeFormData {
   full_name: string;
   email: string;
@@ -27,6 +39,8 @@ export interface ResumeFormData {
   template: string;
   status: string;
   experiences: Experience[];
+  educations: Education[];
+  skills: string;
 }
 
 export interface ResumeGenerationResponse {
