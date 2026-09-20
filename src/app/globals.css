@@ -143,6 +143,13 @@ a {
 @media print {
   body {
     background: white !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+  }
+  .resume-paper,
+  .resume-paper * {
+    user-select: text !important;
+    -webkit-user-select: text !important;
   }
   @page {
     size: A4 portrait;

@@ -253,6 +253,7 @@ export default function EditorPage() {
               previewRef={componentRef}
               scale={zoomLevel}
               onSelectSection={handleSectionSelect}
+              onDownloadClick={handleDownloadClick}
             />
           </div>
 

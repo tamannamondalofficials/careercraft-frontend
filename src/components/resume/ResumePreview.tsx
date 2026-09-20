@@ -1,10 +1,10 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ResumeFormData } from '@/types/resume.types';
 import { TabKey } from '@/components/resume/ResumeForm';
 import { EXECUTIVE_TEMPLATE_SAMPLE } from '@/constants/sampleCV';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Download, Lock, ShieldAlert, X } from 'lucide-react';
 import {
   ExecutiveTemplate,
   ModernTemplate,
@@ -19,14 +19,18 @@ interface ResumePreviewProps {
   previewRef?: React.RefObject<HTMLDivElement | null>;
   scale?: number;
   onSelectSection?: (section: TabKey) => void;
+  onDownloadClick?: () => void;
 }
 
 export const ResumePreview: React.FC<ResumePreviewProps> = ({ 
   data, 
   previewRef, 
   scale = 1,
-  onSelectSection 
+  onSelectSection,
+  onDownloadClick
 }) => {
+  const [showCopyNotice, setShowCopyNotice] = useState(false);
+
   const hasName = Boolean(data.full_name?.trim());
   const hasTitle = Boolean(data.job_title?.trim());
   const hasEmail = Boolean(data.email?.trim());
@@ -52,6 +56,19 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
 
   const sample = EXECUTIVE_TEMPLATE_SAMPLE;
   const template = data.template || 'executive';
+
+  // Trigger anti-copy warning notice
+  const handlePreventCopy = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    setShowCopyNotice(true);
+  };
+
+  useEffect(() => {
+    if (showCopyNotice) {
+      const timer = setTimeout(() => setShowCopyNotice(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showCopyNotice]);
 
   const templateProps: TemplateProps = {
     data,
@@ -87,7 +104,44 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div 
+      className="flex flex-col items-center w-full relative"
+      onCopy={handlePreventCopy}
+      onCut={handlePreventCopy}
+      onContextMenu={handlePreventCopy}
+    >
+      {/* Floating Anti-Copy Prompt Banner */}
+      {showCopyNotice && (
+        <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 animate-fadeIn max-w-md">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+            <Lock size={16} />
+          </div>
+          <div className="text-left flex-1">
+            <h4 className="text-xs font-bold text-white">Copying text is disabled on preview</h4>
+            <p className="text-[11px] text-slate-300 mt-0.5">
+              To use your formatted ATS resume, download your free PDF!
+            </p>
+          </div>
+          {onDownloadClick && (
+            <button
+              onClick={() => {
+                setShowCopyNotice(false);
+                onDownloadClick();
+              }}
+              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg flex items-center gap-1 shrink-0 transition-colors shadow-xs cursor-pointer"
+            >
+              <Download size={13} /> Download
+            </button>
+          )}
+          <button
+            onClick={() => setShowCopyNotice(false)}
+            className="text-slate-400 hover:text-white p-1 rounded-md"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       {/* Sample Preview Notification Banner */}
       {isAllEmpty && (
         <div className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-medium shadow-2xs animate-fadeIn select-none">
@@ -102,15 +156,16 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
         </div>
       )}
 
-      {/* Scaled Preview Canvas */}
+      {/* Scaled Preview Canvas (Protected from direct text copy) */}
       <div 
-        className="transition-transform duration-200 origin-top flex justify-center w-full"
-        style={{ transform: `scale(${scale})` }}
+        className="transition-transform duration-200 origin-top flex justify-center w-full select-none"
+        style={{ transform: `scale(${scale})`, userSelect: 'none', WebkitUserSelect: 'none' }}
+        onDragStart={(e) => e.preventDefault()}
       >
         <div 
           ref={previewRef}
-          className="bg-white text-gray-900 shadow-2xl rounded-sm w-[210mm] min-h-[297mm] border border-gray-300/80 flex flex-col justify-between text-left box-border font-sans relative"
-          style={{ width: '210mm', minHeight: '297mm' }}
+          className="resume-paper bg-white text-gray-900 shadow-2xl rounded-sm w-[210mm] min-h-[297mm] border border-gray-300/80 flex flex-col justify-between text-left box-border font-sans relative select-none pointer-events-auto"
+          style={{ width: '210mm', minHeight: '297mm', userSelect: 'none', WebkitUserSelect: 'none' }}
         >
           {template === 'executive' && <ExecutiveTemplate {...templateProps} />}
           {template === 'modern' && <ModernTemplate {...templateProps} />}
