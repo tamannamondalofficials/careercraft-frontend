@@ -794,6 +794,20 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
               <Plus size={16} />
               + Add Education
             </button>
+
+            {/* Certifications Input */}
+            <div className="border-t border-gray-100 pt-4 mt-2 text-left">
+              <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
+                Certifications & Badges (Optional)
+              </h4>
+              <Input
+                label="Certifications list"
+                name="certifications"
+                placeholder="e.g. ✓ AWS Certified Solutions Architect • ✓ Meta Frontend Specialist"
+                value={formData.certifications || ''}
+                onChange={handleBasicChange}
+              />
+            </div>
           </div>
         </div>
       )}

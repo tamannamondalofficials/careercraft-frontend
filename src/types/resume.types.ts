@@ -23,6 +23,15 @@ export interface Education {
   display_order: number;
 }
 
+export interface Project {
+  title: string;
+  subtitle?: string;
+  technologies?: string;
+  description: string;
+  link?: string;
+  display_order: number;
+}
+
 export interface ResumeFormData {
   full_name: string;
   email: string;
@@ -36,11 +45,13 @@ export interface ResumeFormData {
   github_url: string;
   portfolio_url: string;
   title: string;
-  template: string;
+  template: 'executive' | 'modern' | 'minimal' | 'elegant' | 'compact';
   status: string;
   experiences: Experience[];
   educations: Education[];
+  projects?: Project[];
   skills: string;
+  certifications?: string;
 }
 
 export interface ResumeGenerationResponse {

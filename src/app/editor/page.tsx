@@ -11,14 +11,18 @@ import {
   RotateCcw, 
   Edit3, 
   Eye, 
-  AlertCircle,
   AlertTriangle,
   X,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  LayoutTemplate,
+  CheckCircle2,
+  Layers
 } from 'lucide-react';
 import { ResumeForm, defaultExperience, defaultEducation, TabKey } from '@/components/resume/ResumeForm';
 import { ResumePreview } from '@/components/resume/ResumePreview';
 import { ResumeFormData } from '@/types/resume.types';
+import { EXECUTIVE_TEMPLATE_SAMPLE } from '@/constants/sampleCV';
 import Link from 'next/link';
 
 const LOCAL_STORAGE_KEY = 'career_craft_resume_draft';
@@ -36,12 +40,70 @@ const initialResumeData: ResumeFormData = {
   github_url: '',
   portfolio_url: '',
   title: 'My Resume',
-  template: 'modern',
+  template: 'executive',
   status: 'draft',
   experiences: [{ ...defaultExperience }],
   educations: [{ ...defaultEducation }],
   skills: ''
 };
+
+interface TemplateOption {
+  id: 'executive' | 'modern' | 'minimal' | 'elegant' | 'compact';
+  name: string;
+  category: 'ats' | 'tech' | 'executive';
+  badge: string;
+  description: string;
+  features: string[];
+  accentColor: string;
+}
+
+const TEMPLATE_OPTIONS: TemplateOption[] = [
+  {
+    id: 'executive',
+    name: 'Executive (Word Style)',
+    category: 'executive',
+    badge: 'Most Popular / Word CV',
+    description: 'Modeled directly from executive Word resumes with deep navy accents and pipe contact lines.',
+    features: ['Deep navy (#17365D) uppercase headers', 'Pipe-separated contact info', 'Standard ATS bullet layout'],
+    accentColor: '#17365D'
+  },
+  {
+    id: 'modern',
+    name: 'Modern Creative Tech',
+    category: 'tech',
+    badge: 'Top Choice for Developers',
+    description: 'Contemporary indigo styling with timeline indicators, badge pills, and high visual contrast.',
+    features: ['Vibrant indigo accents', 'Skill pill badges', 'Interactive timeline dots'],
+    accentColor: '#4F46E5'
+  },
+  {
+    id: 'minimal',
+    name: 'Minimalist Clean ATS',
+    category: 'ats',
+    badge: '100% ATS Optimized',
+    description: 'Clean monochrome layout, monospaced metadata, and ultra-high readability for automated screening.',
+    features: ['High ATS pass rate', 'Monospace font accents', 'Clean horizontal rule dividers'],
+    accentColor: '#0F172A'
+  },
+  {
+    id: 'elegant',
+    name: 'Classic Elegant Serif',
+    category: 'executive',
+    badge: 'Leadership & Consulting',
+    description: 'Sophisticated editorial serif typography with centered headers and tasteful border lines.',
+    features: ['Classic editorial serif font', 'Centered header presentation', 'Ideal for executive roles'],
+    accentColor: '#44403C'
+  },
+  {
+    id: 'compact',
+    name: 'Compact 2-Column Tech',
+    category: 'tech',
+    badge: 'Modern Sidebar',
+    description: 'Dual-column layout with dark tech sidebar for skills/contact and high-density project showcase.',
+    features: ['Slate sidebar for tech stack', 'High information density', 'Perfect for 1-page resumes'],
+    accentColor: '#0F172A'
+  }
+];
 
 export default function EditorPage() {
   const [formData, setFormData] = useState<ResumeFormData>(initialResumeData);
@@ -51,6 +113,8 @@ export default function EditorPage() {
   const [mobileTab, setMobileTab] = useState<'edit' | 'preview'>('edit');
   const [isClient, setIsClient] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [templateFilter, setTemplateFilter] = useState<'all' | 'ats' | 'tech' | 'executive'>('all');
 
   const componentRef = useRef<HTMLDivElement>(null);
 
@@ -90,7 +154,11 @@ export default function EditorPage() {
     documentTitle: formData.full_name ? `${formData.full_name.replace(/\s+/g, '_')}_Resume` : 'Resume',
   });
 
-  // Calculate missing sections for review
+  const loadSampleData = () => {
+    setFormData(EXECUTIVE_TEMPLATE_SAMPLE);
+  };
+
+  // Missing sections checklist
   const missingItems: { label: string; tab: TabKey }[] = [];
   if (!formData.full_name?.trim()) missingItems.push({ label: 'Full Name', tab: 'personal' });
   if (!formData.email?.trim()) missingItems.push({ label: 'Email Address', tab: 'personal' });
@@ -121,10 +189,17 @@ export default function EditorPage() {
   const zoomOut = () => setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
   const resetZoom = () => setZoomLevel(0.85);
 
+  const filteredTemplates = TEMPLATE_OPTIONS.filter(t => {
+    if (templateFilter === 'all') return true;
+    return t.category === templateFilter;
+  });
+
+  const currentTemplateObj = TEMPLATE_OPTIONS.find(t => t.id === formData.template) || TEMPLATE_OPTIONS[0];
+
   return (
     <div className="flex flex-col h-screen w-screen bg-[#F8FAFC] overflow-hidden text-gray-900 font-sans box-border">
       
-      {/* 1. Header Bar: Full clearance, sticky, generous padding */}
+      {/* 1. Header Bar */}
       <header className="h-16 bg-white border-b border-gray-200 px-6 md:px-8 lg:px-10 flex items-center justify-between shrink-0 shadow-xs z-30 box-border">
         <div className="flex items-center gap-4 sm:gap-6">
           <Link href="/" className="flex items-center gap-2.5 text-indigo-600 hover:text-indigo-700 transition-colors shrink-0">
@@ -151,7 +226,7 @@ export default function EditorPage() {
           </div>
 
           {/* Autosave Status Indicator */}
-          <div className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-50 border border-gray-200 shrink-0">
+          <div className="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-50 border border-gray-200 shrink-0">
             {saveStatus === 'saved' && (
               <>
                 <Check size={13} className="text-emerald-500 stroke-[3]" />
@@ -174,7 +249,28 @@ export default function EditorPage() {
         </div>
         
         {/* Right Actions Bar */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          
+          {/* Load Sample Data Button */}
+          <button
+            onClick={loadSampleData}
+            className="hidden lg:flex items-center gap-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-2 rounded-xl transition-all cursor-pointer"
+            title="Load sample resume data"
+          >
+            <Sparkles size={14} className="text-indigo-600" />
+            <span>Load Sample Data</span>
+          </button>
+
+          {/* Template Switcher Button */}
+          <button 
+            onClick={() => setShowTemplateModal(true)}
+            className="flex items-center gap-1.5 text-xs font-semibold text-gray-800 bg-gray-50 hover:bg-gray-100 border border-gray-300 px-3 py-2 rounded-xl transition-all hover:border-indigo-300 cursor-pointer shadow-2xs"
+          >
+            <LayoutTemplate size={14} className="text-indigo-600" />
+            <span className="hidden sm:inline">Templates: </span>
+            <span className="text-indigo-700 font-bold">{currentTemplateObj.name.split(' ')[0]}</span>
+          </button>
+
           {/* Mobile Edit/Preview View Switcher */}
           <div className="flex md:hidden bg-gray-100 p-1 rounded-lg border border-gray-200">
             <button
@@ -209,6 +305,255 @@ export default function EditorPage() {
           </button>
         </div>
       </header>
+
+      {/* Rich Template Chooser & Download Suggestion Gallery Modal */}
+      {showTemplateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-xs p-4 sm:p-6 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-200 overflow-hidden text-left">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-white shrink-0">
+              <div>
+                <div className="flex items-center gap-2 text-gray-900 font-bold text-lg">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <LayoutTemplate size={18} />
+                  </div>
+                  <span>Choose Resume Template</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Select from 5 professionally engineered ATS-friendly resume templates.
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowTemplateModal(false)}
+                className="text-gray-400 hover:text-gray-700 p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Category Filter Tabs */}
+            <div className="px-6 py-3 bg-gray-50/80 border-b border-gray-200/80 flex items-center gap-2 overflow-x-auto hide-scrollbar shrink-0">
+              <button
+                onClick={() => setTemplateFilter('all')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  templateFilter === 'all' 
+                    ? 'bg-indigo-600 text-white shadow-xs' 
+                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                All Templates (5)
+              </button>
+              <button
+                onClick={() => setTemplateFilter('executive')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  templateFilter === 'executive' 
+                    ? 'bg-indigo-600 text-white shadow-xs' 
+                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                Executive & Leadership
+              </button>
+              <button
+                onClick={() => setTemplateFilter('tech')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  templateFilter === 'tech' 
+                    ? 'bg-indigo-600 text-white shadow-xs' 
+                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                Tech & Software Engineers
+              </button>
+              <button
+                onClick={() => setTemplateFilter('ats')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  templateFilter === 'ats' 
+                    ? 'bg-indigo-600 text-white shadow-xs' 
+                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                100% Minimal ATS
+              </button>
+            </div>
+
+            {/* Template Grid Body */}
+            <div className="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 bg-[#F8FAFC]">
+              {filteredTemplates.map((tpl) => {
+                const isSelected = formData.template === tpl.id;
+                return (
+                  <div
+                    key={tpl.id}
+                    className={`rounded-2xl border-2 transition-all bg-white flex flex-col justify-between overflow-hidden relative group hover:shadow-lg ${
+                      isSelected 
+                        ? 'border-indigo-600 ring-2 ring-indigo-100 shadow-md' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    {/* Active Selected Badge */}
+                    {isSelected && (
+                      <div className="absolute top-3 right-3 z-10 bg-indigo-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-xs">
+                        <CheckCircle2 size={12} /> Active
+                      </div>
+                    )}
+
+                    {/* Template Visual Mockup Thumbnail */}
+                    <div 
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, template: tpl.id }));
+                      }}
+                      className="p-4 bg-slate-100/80 border-b border-gray-100 cursor-pointer flex flex-col items-center justify-center min-h-[140px] relative overflow-hidden"
+                    >
+                      {tpl.id === 'executive' && (
+                        <div className="w-full max-w-[200px] bg-white rounded shadow-xs p-2.5 border border-slate-200 flex flex-col gap-1.5">
+                          <div className="h-2 w-24 bg-[#17365D] rounded-xs" />
+                          <div className="h-1 w-16 bg-[#365F91] rounded-xs" />
+                          <div className="h-0.5 w-full bg-slate-200" />
+                          <div className="flex gap-1">
+                            <div className="h-1 w-10 bg-slate-300 rounded-xs" />
+                            <div className="h-1 w-10 bg-slate-300 rounded-xs" />
+                            <div className="h-1 w-10 bg-slate-300 rounded-xs" />
+                          </div>
+                          <div className="h-1 w-full bg-slate-100 rounded-xs" />
+                          <div className="h-1 w-4/5 bg-slate-100 rounded-xs" />
+                        </div>
+                      )}
+
+                      {tpl.id === 'modern' && (
+                        <div className="w-full max-w-[200px] bg-white rounded shadow-xs p-2.5 border border-slate-200 flex flex-col gap-1.5">
+                          <div className="flex justify-between items-center">
+                            <div className="h-2.5 w-20 bg-indigo-600 rounded-xs" />
+                            <div className="h-2 w-10 bg-indigo-100 rounded-full" />
+                          </div>
+                          <div className="h-0.5 w-full bg-indigo-50" />
+                          <div className="flex gap-1 mt-0.5">
+                            <div className="h-1.5 w-8 bg-indigo-100 rounded-full" />
+                            <div className="h-1.5 w-8 bg-indigo-100 rounded-full" />
+                            <div className="h-1.5 w-8 bg-indigo-100 rounded-full" />
+                          </div>
+                          <div className="border-l-2 border-indigo-200 pl-1.5 flex flex-col gap-1 mt-0.5">
+                            <div className="h-1 w-full bg-slate-200 rounded-xs" />
+                            <div className="h-1 w-3/4 bg-slate-100 rounded-xs" />
+                          </div>
+                        </div>
+                      )}
+
+                      {tpl.id === 'minimal' && (
+                        <div className="w-full max-w-[200px] bg-white rounded shadow-xs p-2.5 border border-slate-200 flex flex-col gap-1.5 font-mono">
+                          <div className="flex justify-between">
+                            <div className="h-2 w-20 bg-slate-900 rounded-xs" />
+                            <div className="h-1 w-10 bg-slate-400 rounded-xs" />
+                          </div>
+                          <div className="h-0.5 w-full bg-slate-900" />
+                          <div className="h-1 w-16 bg-slate-600 rounded-xs" />
+                          <div className="h-1 w-full bg-slate-200 rounded-xs" />
+                          <div className="h-1 w-full bg-slate-200 rounded-xs" />
+                        </div>
+                      )}
+
+                      {tpl.id === 'elegant' && (
+                        <div className="w-full max-w-[200px] bg-white rounded shadow-xs p-2.5 border border-slate-200 flex flex-col items-center gap-1.5">
+                          <div className="h-2.5 w-24 bg-stone-800 rounded-xs" />
+                          <div className="h-1 w-16 bg-stone-400 rounded-xs" />
+                          <div className="h-0.5 w-full bg-stone-300" />
+                          <div className="h-1 w-full bg-stone-100 rounded-xs" />
+                          <div className="h-1 w-4/5 bg-stone-100 rounded-xs" />
+                        </div>
+                      )}
+
+                      {tpl.id === 'compact' && (
+                        <div className="w-full max-w-[200px] bg-white rounded shadow-xs border border-slate-200 flex overflow-hidden h-20">
+                          <div className="w-[35%] bg-slate-900 p-1.5 flex flex-col gap-1">
+                            <div className="h-1.5 w-full bg-white rounded-xs" />
+                            <div className="h-1 w-3/4 bg-indigo-400 rounded-xs" />
+                            <div className="h-1 w-full bg-slate-700 rounded-xs mt-1" />
+                            <div className="h-1 w-full bg-slate-700 rounded-xs" />
+                          </div>
+                          <div className="w-[65%] p-1.5 flex flex-col gap-1 bg-white">
+                            <div className="h-1.5 w-16 bg-slate-800 rounded-xs" />
+                            <div className="h-1 w-full bg-slate-100 rounded-xs" />
+                            <div className="h-1 w-full bg-slate-100 rounded-xs" />
+                            <div className="h-1 w-3/4 bg-slate-100 rounded-xs" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Template Details */}
+                    <div className="p-4 flex flex-col flex-1 justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            {tpl.badge}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-sm text-gray-950">{tpl.name}</h4>
+                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                          {tpl.description}
+                        </p>
+
+                        <div className="mt-3 space-y-1">
+                          {tpl.features.map((feat, fIdx) => (
+                            <div key={fIdx} className="text-[11px] text-gray-600 flex items-center gap-1.5">
+                              <Check size={12} className="text-emerald-500 shrink-0" />
+                              <span>{feat}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, template: tpl.id }));
+                            setShowTemplateModal(false);
+                          }}
+                          className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center ${
+                            isSelected
+                              ? 'bg-indigo-600 text-white shadow-xs'
+                              : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                          }`}
+                        >
+                          {isSelected ? 'Currently Selected' : 'Apply & Preview'}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, template: tpl.id }));
+                            setShowTemplateModal(false);
+                            setTimeout(() => {
+                              handleDownloadClick();
+                            }, 300);
+                          }}
+                          className="p-2 rounded-xl text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 border border-gray-200 transition-colors cursor-pointer"
+                          title="Download in this template"
+                        >
+                          <Download size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <Layers size={14} className="text-indigo-600" />
+                <span>All templates auto-populate your live profile data</span>
+              </div>
+              <button
+                onClick={() => setShowTemplateModal(false)}
+                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition-all shadow-xs cursor-pointer"
+              >
+                Close Gallery
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* Review Modal before Download */}
       {showReviewModal && (
@@ -283,7 +628,7 @@ export default function EditorPage() {
         </div>
       )}
 
-      {/* Main Split-Screen Workspace (Starts cleanly below header) */}
+      {/* Main Split-Screen Workspace */}
       <div className="flex flex-1 overflow-hidden flex-col md:flex-row relative box-border">
         
         {/* Left Form Panel: 24px (p-6) padding */}
