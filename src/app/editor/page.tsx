@@ -16,29 +16,13 @@ import {
   RESUME_STORE_STORAGE_KEY
 } from '@/components/resume/modals';
 import { ResumeFormData } from '@/types/resume.types';
-import { ProfessionSample, PROFESSION_PRESETS } from '@/constants/sampleCV';
+import { ProfessionSample, PROFESSION_PRESETS, EXECUTIVE_TEMPLATE_SAMPLE } from '@/constants/sampleCV';
 import { submitResume } from '@/services/api/resume.service';
 
 const LOCAL_STORAGE_KEY = 'career_craft_resume_draft';
 
 const initialResumeData: ResumeFormData = {
-  full_name: '',
-  email: '',
-  phone: '',
-  job_title: '',
-  professional_summary: '',
-  city: '',
-  state: '',
-  country: '',
-  linkedin_url: '',
-  github_url: '',
-  portfolio_url: '',
-  title: 'My Resume',
-  template: 'executive',
-  status: 'draft',
-  experiences: [{ ...defaultExperience }],
-  educations: [{ ...defaultEducation }],
-  skills: ''
+  ...EXECUTIVE_TEMPLATE_SAMPLE,
 };
 
 export default function EditorPage() {
