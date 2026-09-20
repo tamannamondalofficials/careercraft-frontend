@@ -1,22 +1,30 @@
 import axios, { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import { API_BASE_URL } from '@/constants/endpoints';
+import { getApiBaseUrl } from '@/constants/endpoints';
 
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
-  // timeout: 10000, // Optional timeout
+  timeout: 15000,
 });
 
-// Request Interceptor
+// Request Interceptor: dynamically resolve baseURL for local & live environments
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Example: Add auth token to headers if it exists
-    // const token = localStorage.getItem('auth_token');
-    // if (token && config.headers) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // Dynamically refresh base URL if not explicitly hardcoded
+    if (!config.baseURL || config.baseURL === 'undefined') {
+      config.baseURL = getApiBaseUrl();
+    }
+    
+    // Attach auth token from storage if present
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
     return config;
   },
   (error: AxiosError) => {
@@ -27,7 +35,6 @@ apiClient.interceptors.request.use(
 // Response Interceptor
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
-    // We can directly return response.data if we want to unwrap it here
     return response;
   },
   (error: AxiosError) => {
@@ -38,3 +45,4 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+

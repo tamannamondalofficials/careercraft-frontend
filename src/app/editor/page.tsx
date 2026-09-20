@@ -166,7 +166,7 @@ export default function EditorPage() {
         type: 'success',
         message: resumeId
           ? `Resume successfully saved to backend database (ID: #${resumeId}) & added to your Resume Store!`
-          : 'Resume successfully submitted to backend API (http://127.0.0.1:8000/api/v1/resumes/)!'
+          : 'Resume successfully submitted to backend database & added to your Resume Store!'
       });
 
       // Show the ATS score modal report immediately after submit!

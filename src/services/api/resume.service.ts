@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/api-client';
 import { ResumeFormData } from '@/types/resume.types';
-import { API_ENDPOINTS } from '@/constants/endpoints';
+import { API_ENDPOINTS, getApiBaseUrl } from '@/constants/endpoints';
 
 export interface ResumeSubmitResponse {
   id?: string | number;
@@ -24,7 +24,7 @@ const normalizeDate = (val?: string | null): string | null => {
 };
 
 /**
- * Submit or save a resume to the backend API (POST http://127.0.0.1:8000/api/v1/resumes/)
+ * Submit or save a resume to the backend API (POST /api/v1/resumes/)
  */
 export const submitResume = async (data: ResumeFormData): Promise<ResumeSubmitResponse> => {
   const cleanedPayload = {
@@ -74,7 +74,7 @@ export const submitResume = async (data: ResumeFormData): Promise<ResumeSubmitRe
         console.error('Error submitting resume on retry:', retryErr);
       }
     }
-    console.error('Error submitting resume to backend (http://127.0.0.1:8000/api/v1/resumes/):', error);
+    console.error(`Error submitting resume to backend (${getApiBaseUrl()}${API_ENDPOINTS.RESUME.SUBMIT}):`, error);
     throw error;
   }
 };
