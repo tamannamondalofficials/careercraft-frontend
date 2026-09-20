@@ -9,7 +9,7 @@ import { defaultExperience, defaultEducation } from '@/components/resume/form';
 import { EditorHeader, ZoomControls } from '@/components/resume/layout';
 import { TemplateGalleryModal, ProfessionPresetsModal, ReviewDownloadModal } from '@/components/resume/modals';
 import { ResumeFormData } from '@/types/resume.types';
-import { ProfessionSample } from '@/constants/sampleCV';
+import { ProfessionSample, PROFESSION_PRESETS } from '@/constants/sampleCV';
 import { submitResume } from '@/services/api/resume.service';
 
 const LOCAL_STORAGE_KEY = 'career_craft_resume_draft';
@@ -53,15 +53,35 @@ export default function EditorPage() {
 
   const componentRef = useRef<HTMLDivElement>(null);
 
-  // 1. Load draft from localStorage on initial render
+  // 1. Load draft from localStorage and URL query params on initial render
   useEffect(() => {
     setIsClient(true);
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      let initialData = initialResumeData;
       if (saved) {
-        const parsed = JSON.parse(saved);
-        setFormData(prev => ({ ...prev, ...parsed }));
+        initialData = { ...initialResumeData, ...JSON.parse(saved) };
       }
+
+      // Check query params if template or preset was clicked on landing page
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const templateParam = params.get('template');
+        const presetParam = params.get('preset');
+
+        if (presetParam) {
+          const foundPreset = PROFESSION_PRESETS.find(p => p.id === presetParam);
+          if (foundPreset) {
+            initialData = { ...initialData, ...foundPreset.data };
+          }
+        }
+
+        if (templateParam && ['executive', 'modern', 'minimal', 'compact', 'elegant'].includes(templateParam)) {
+          initialData.template = templateParam as 'executive' | 'modern' | 'minimal' | 'compact' | 'elegant';
+        }
+      }
+
+      setFormData(initialData);
     } catch (e) {
       console.error("Failed to load draft from localStorage", e);
     }

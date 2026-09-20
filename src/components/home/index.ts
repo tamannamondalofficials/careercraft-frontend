@@ -1,0 +1,10 @@
+export { Navbar } from "./Navbar";
+export { HeroSection } from "./HeroSection";
+export { SocialProofSection } from "./SocialProofSection";
+export { TemplateGallerySection } from "./TemplateGallerySection";
+export { SampleRolesSection } from "./SampleRolesSection";
+export { WhyUsSection } from "./WhyUsSection";
+export { WritingTipsSection } from "./WritingTipsSection";
+export { FaqSection } from "./FaqSection";
+export { BottomCtaSection } from "./BottomCtaSection";
+export { Footer } from "./Footer";

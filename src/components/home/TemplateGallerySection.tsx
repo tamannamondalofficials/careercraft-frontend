@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ArrowRight, Sparkles, LayoutTemplate, Shield, Award } from "lucide-react";
-import { RESUME_TEMPLATES, ResumeTemplateOption } from "@/constants/templates";
+import { TEMPLATE_OPTIONS, TemplateOption } from "@/constants/templates";
 
 export function TemplateGallerySection() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export function TemplateGallerySection() {
     { id: "modern", label: "Creative & Product" },
   ];
 
-  const filteredTemplates = RESUME_TEMPLATES.filter((tpl) => {
+  const filteredTemplates = TEMPLATE_OPTIONS.filter((tpl: TemplateOption) => {
     if (selectedCategory === "all") return true;
     if (selectedCategory === "ats") return tpl.id === "minimal" || tpl.id === "executive";
     if (selectedCategory === "executive") return tpl.id === "executive" || tpl.id === "compact";
@@ -61,7 +61,7 @@ export function TemplateGallerySection() {
 
         {/* Templates Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredTemplates.map((template) => (
+          {filteredTemplates.map((template: TemplateOption) => (
             <div
               key={template.id}
               className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-indigo-300 transition-all overflow-hidden flex flex-col group"
