@@ -38,6 +38,14 @@ export const metadata: Metadata = {
     title: "CareerCraft — Free ATS Resume Builder",
     description: "Build a recruiter-approved resume in 5 minutes. 100% free PDF export, no watermarks, no credit card required.",
   },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.svg", type: "image/svg+xml" }
+    ],
+    shortcut: "/favicon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
