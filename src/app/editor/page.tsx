@@ -108,7 +108,7 @@ export default function EditorPage() {
     });
   };
 
-  // Submit to backend API (http://127.0.0.1:8000/api/resumes)
+  // Submit to backend API (http://127.0.0.1:8000/api/v1/resumes)
   const handleBackendSubmit = async () => {
     setIsSubmitting(true);
     setSubmitFeedback(null);
@@ -119,14 +119,14 @@ export default function EditorPage() {
         type: 'success',
         message: resumeId
           ? `Resume successfully saved to backend database (ID: #${resumeId})!`
-          : 'Resume successfully submitted to backend API (http://127.0.0.1:8000/api/resumes)!'
+          : 'Resume successfully submitted to backend API (http://127.0.0.1:8000/api/v1/resumes/)!'
       });
     } catch (err: any) {
       console.warn('Backend API submission warning:', err);
       const errorMsg = err?.response?.data?.message || err?.message || 'Server connection error';
       setSubmitFeedback({
         type: 'error',
-        message: `Saved locally! (Backend at http://127.0.0.1:8000/api/resumes: ${errorMsg})`
+        message: `Saved locally! (Backend at http://127.0.0.1:8000/api/v1/resumes/: ${errorMsg})`
       });
     } finally {
       setIsSubmitting(false);
@@ -175,6 +175,7 @@ export default function EditorPage() {
         currentTemplateId={formData.template}
         mobileTab={mobileTab}
         onMobileTabChange={setMobileTab}
+        onOpenProfessionModal={() => setShowProfessionModal(true)}
         onOpenTemplateModal={() => setShowTemplateModal(true)}
         onDownloadClick={handleDownloadClick}
       />
@@ -182,8 +183,8 @@ export default function EditorPage() {
       {/* 2. Global Feedback Toast */}
       {submitFeedback && (
         <div className={`px-6 py-2.5 text-xs font-medium flex items-center justify-between animate-fadeIn transition-all z-20 ${submitFeedback.type === 'success'
-            ? 'bg-emerald-50 border-b border-emerald-200 text-emerald-900'
-            : 'bg-amber-50 border-b border-amber-200 text-amber-900'
+          ? 'bg-emerald-50 border-b border-emerald-200 text-emerald-900'
+          : 'bg-amber-50 border-b border-amber-200 text-amber-900'
           }`}>
           <div className="flex items-center gap-2 max-w-4xl mx-auto w-full">
             {submitFeedback.type === 'success' ? (
@@ -215,8 +216,8 @@ export default function EditorPage() {
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               onSubmit={handleBackendSubmit}
-              onDownloadClick={handleDownloadClick}
               isSubmitting={isSubmitting}
+              onDownloadClick={handleDownloadClick}
             />
           </div>
         </div>

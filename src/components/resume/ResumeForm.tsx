@@ -3,15 +3,17 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { ResumeFormData } from '@/types/resume.types';
-import {
-  User,
-  FileText,
-  Briefcase,
-  GraduationCap,
-  Sparkles,
-  ArrowRight,
-  ArrowLeft,
+import { 
+  User, 
+  FileText, 
+  Briefcase, 
+  GraduationCap, 
+  Sparkles, 
+  ArrowRight, 
+  ArrowLeft, 
   Download,
+  CloudUpload,
+  Loader2,
   Check
 } from 'lucide-react';
 import {
@@ -32,6 +34,8 @@ interface ResumeFormProps {
   setFormData: React.Dispatch<React.SetStateAction<ResumeFormData>>;
   activeTab?: TabKey;
   setActiveTab?: (tab: TabKey) => void;
+  onSubmit?: () => void;
+  isSubmitting?: boolean;
   onDownloadClick?: () => void;
   message?: { type: 'success' | 'error', text: string } | null;
 }
@@ -49,6 +53,8 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
   setFormData,
   activeTab: controlledTab,
   setActiveTab: setControlledTab,
+  onSubmit,
+  isSubmitting = false,
   onDownloadClick,
   message
 }) => {
@@ -61,7 +67,7 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
   const isSummaryDone = Boolean(formData.professional_summary?.trim());
   const isExperienceDone = (formData.experiences || []).some(e => e.company_name?.trim() || e.job_title?.trim());
   const isEducationDone = (formData.educations || []).some(e => e.institution_name?.trim() || e.degree?.trim());
-
+  
   const skillList = (formData.skills || '')
     .split(',')
     .map(s => s.trim())
@@ -90,13 +96,14 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
 
   return (
     <div className="flex flex-col gap-6 text-gray-900 w-full box-border">
-
+      
       {/* Optional Feedback Alert */}
       {message && (
-        <div className={`p-4 rounded-xl text-sm font-medium border flex items-center gap-2 ${message.type === 'success'
-            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+        <div className={`p-4 rounded-xl text-sm font-medium border flex items-center gap-2 ${
+          message.type === 'success' 
+            ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
             : 'bg-red-50 text-red-800 border-red-200'
-          }`}>
+        }`}>
           <span>{message.text}</span>
         </div>
       )}
@@ -107,9 +114,9 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
           <span>{completedSections} of 5 sections completed</span>
           <span className="text-indigo-600 font-bold">{Math.round((completedSections / 5) * 100)}%</span>
         </div>
-
+        
         <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-          <div
+          <div 
             className="bg-indigo-600 h-full rounded-full transition-all duration-300 ease-out"
             style={{ width: `${(completedSections / 5) * 100}%` }}
           />
@@ -121,7 +128,7 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
-
+          
           let isDone = false;
           if (tab.key === 'personal') isDone = isPersonalDone;
           if (tab.key === 'summary') isDone = isSummaryDone;
@@ -134,10 +141,11 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 min-w-[90px] py-2 px-2.5 rounded-xl font-medium text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${isActive
-                  ? 'bg-white text-indigo-700 shadow-xs font-semibold'
+              className={`flex-1 min-w-[90px] py-2 px-2.5 rounded-xl font-medium text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                isActive 
+                  ? 'bg-white text-indigo-700 shadow-xs font-semibold' 
                   : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
-                }`}
+              }`}
             >
               <Icon size={14} className={isActive ? 'text-indigo-600' : 'text-gray-400'} />
               <span>{tab.label}</span>
@@ -157,8 +165,8 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
           <PersonalInfoSection formData={formData} onChange={handleBasicChange} />
         )}
         {activeTab === 'summary' && (
-          <SummarySection
-            formData={formData}
+          <SummarySection 
+            formData={formData} 
             onChange={handleBasicChange}
             onApplyTemplateSummary={(text) => setFormData(prev => ({ ...prev, professional_summary: text }))}
           />
@@ -175,7 +183,7 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
       </div>
 
       {/* Stepper Navigation Footer Buttons */}
-      <div className="flex items-center justify-between pt-2 pb-6 border-t border-gray-200">
+      <div className="flex items-center justify-between pt-2 pb-6 border-t border-gray-200 gap-3">
         <Button
           type="button"
           variant="outline"
@@ -198,15 +206,36 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
             <ArrowRight size={14} />
           </Button>
         ) : (
-          <Button
-            type="button"
-            variant="primary"
-            onClick={onDownloadClick}
-            className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
-          >
-            <Download size={14} />
-            Download Resume
-          </Button>
+          <div className="flex items-center gap-2.5">
+            {onSubmit && (
+              <Button
+                type="button"
+                variant="primary"
+                onClick={onSubmit}
+                disabled={isSubmitting}
+                className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <Loader2 size={14} className="animate-spin text-white" />
+                ) : (
+                  <CloudUpload size={14} />
+                )}
+                <span>{isSubmitting ? 'Saving...' : 'Submit & Save to DB'}</span>
+              </Button>
+            )}
+
+            {onDownloadClick && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onDownloadClick}
+                className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2.5 rounded-xl border-gray-300 hover:bg-gray-100 text-gray-800 cursor-pointer"
+              >
+                <Download size={14} />
+                Download PDF
+              </Button>
+            )}
+          </div>
         )}
       </div>
 
