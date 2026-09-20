@@ -183,7 +183,7 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
       </div>
 
       {/* Stepper Navigation Footer Buttons */}
-      <div className="flex items-center justify-between pt-2 pb-6 border-t border-gray-200 gap-3">
+      <div className="flex flex-wrap items-center justify-between pt-3 pb-6 border-t border-gray-200 gap-3">
         <Button
           type="button"
           variant="outline"
@@ -195,48 +195,49 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({
           Previous
         </Button>
 
-        {currentTabIndex < TABS.length - 1 ? (
-          <Button
-            type="button"
-            variant="primary"
-            onClick={goToNextTab}
-            className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
-          >
-            Next Section
-            <ArrowRight size={14} />
-          </Button>
-        ) : (
-          <div className="flex items-center gap-2.5">
-            {onSubmit && (
+        <div className="flex items-center gap-2.5 ml-auto">
+          {onSubmit && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onSubmit}
+              disabled={isSubmitting}
+              className="flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 rounded-xl border-emerald-300 bg-emerald-50/80 hover:bg-emerald-100 text-emerald-800 shadow-2xs cursor-pointer disabled:opacity-50 transition-all"
+              title="Submit & Calculate ATS Score"
+            >
+              {isSubmitting ? (
+                <Loader2 size={14} className="animate-spin text-emerald-700" />
+              ) : (
+                <CloudUpload size={14} className="text-emerald-700" />
+              )}
+              <span>{isSubmitting ? 'Saving...' : 'Submit & Score'}</span>
+            </Button>
+          )}
+
+          {currentTabIndex < TABS.length - 1 ? (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={goToNextTab}
+              className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
+            >
+              Next Section
+              <ArrowRight size={14} />
+            </Button>
+          ) : (
+            onDownloadClick && (
               <Button
                 type="button"
                 variant="primary"
-                onClick={onSubmit}
-                disabled={isSubmitting}
-                className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <Loader2 size={14} className="animate-spin text-white" />
-                ) : (
-                  <CloudUpload size={14} />
-                )}
-                <span>{isSubmitting ? 'Saving...' : 'Submit & Save to DB'}</span>
-              </Button>
-            )}
-
-            {onDownloadClick && (
-              <Button
-                type="button"
-                variant="outline"
                 onClick={onDownloadClick}
-                className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2.5 rounded-xl border-gray-300 hover:bg-gray-100 text-gray-800 cursor-pointer"
+                className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs cursor-pointer"
               >
                 <Download size={14} />
                 Download PDF
               </Button>
-            )}
-          </div>
-        )}
+            )
+          )}
+        </div>
       </div>
 
     </div>

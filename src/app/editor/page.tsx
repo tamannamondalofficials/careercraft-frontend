@@ -7,7 +7,14 @@ import { ResumeForm, TabKey } from '@/components/resume/ResumeForm';
 import { ResumePreview } from '@/components/resume/ResumePreview';
 import { defaultExperience, defaultEducation } from '@/components/resume/form';
 import { EditorHeader, ZoomControls } from '@/components/resume/layout';
-import { TemplateGalleryModal, ProfessionPresetsModal, ReviewDownloadModal } from '@/components/resume/modals';
+import { 
+  TemplateGalleryModal, 
+  ProfessionPresetsModal, 
+  ReviewDownloadModal,
+  ResumeStoreModal,
+  AtsScoreModal,
+  RESUME_STORE_STORAGE_KEY
+} from '@/components/resume/modals';
 import { ResumeFormData } from '@/types/resume.types';
 import { ProfessionSample, PROFESSION_PRESETS } from '@/constants/sampleCV';
 import { submitResume } from '@/services/api/resume.service';
@@ -46,6 +53,9 @@ export default function EditorPage() {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showProfessionModal, setShowProfessionModal] = useState(false);
+  const [showResumeStoreModal, setShowResumeStoreModal] = useState(false);
+  const [showAtsModal, setShowAtsModal] = useState(false);
+  const [submittedBackendId, setSubmittedBackendId] = useState<string | number | undefined>();
 
   // Backend submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -128,26 +138,64 @@ export default function EditorPage() {
     });
   };
 
-  // Submit to backend API (http://127.0.0.1:8000/api/v1/resumes)
+  // Submit to backend API (http://127.0.0.1:8000/api/v1/resumes/)
   const handleBackendSubmit = async () => {
     setIsSubmitting(true);
     setSubmitFeedback(null);
     try {
       const res = await submitResume(formData);
       const resumeId = res.id || res.resume_id || res.data?.id;
+      setSubmittedBackendId(resumeId);
+
+      // Save version into Resume Store
+      try {
+        const storedStr = localStorage.getItem(RESUME_STORE_STORAGE_KEY);
+        const storedList = storedStr ? JSON.parse(storedStr) : [];
+        const newStoreItem = {
+          id: `resume_${Date.now()}`,
+          savedAt: new Date().toISOString(),
+          data: { ...formData },
+          backendId: resumeId
+        };
+        localStorage.setItem(RESUME_STORE_STORAGE_KEY, JSON.stringify([newStoreItem, ...storedList]));
+      } catch (storeErr) {
+        console.warn('Resume store cache update:', storeErr);
+      }
+
       setSubmitFeedback({
         type: 'success',
         message: resumeId
-          ? `Resume successfully saved to backend database (ID: #${resumeId})!`
+          ? `Resume successfully saved to backend database (ID: #${resumeId}) & added to your Resume Store!`
           : 'Resume successfully submitted to backend API (http://127.0.0.1:8000/api/v1/resumes/)!'
       });
+
+      // Show the ATS score modal report immediately after submit!
+      setShowAtsModal(true);
     } catch (err: any) {
       console.warn('Backend API submission warning:', err);
       const errorMsg = err?.response?.data?.message || err?.message || 'Server connection error';
+
+      // Save locally to store anyway
+      try {
+        const storedStr = localStorage.getItem(RESUME_STORE_STORAGE_KEY);
+        const storedList = storedStr ? JSON.parse(storedStr) : [];
+        const newStoreItem = {
+          id: `resume_${Date.now()}`,
+          savedAt: new Date().toISOString(),
+          data: { ...formData }
+        };
+        localStorage.setItem(RESUME_STORE_STORAGE_KEY, JSON.stringify([newStoreItem, ...storedList]));
+      } catch (e) {
+        // ignore
+      }
+
       setSubmitFeedback({
         type: 'error',
-        message: `Saved locally! (Backend at http://127.0.0.1:8000/api/v1/resumes/: ${errorMsg})`
+        message: `Saved locally in your Resume Store! (Backend: ${errorMsg})`
       });
+
+      // Still show the ATS score modal for the user's resume!
+      setShowAtsModal(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -163,9 +211,11 @@ export default function EditorPage() {
     missingItems.push({ label: 'Work Experience', tab: 'experience' });
   }
   if (!formData.educations?.some(e => e.institution_name?.trim() || e.degree?.trim())) {
-    missingItems.push({ label: 'Education', tab: 'education' });
+    missingItems.push({ label: 'Education & Degree', tab: 'education' });
   }
-  if (!formData.skills?.trim()) missingItems.push({ label: 'Skills & Competencies', tab: 'skills' });
+  if (!formData.skills?.trim()) {
+    missingItems.push({ label: 'Technical & Domain Skills', tab: 'skills' });
+  }
 
   const handleDownloadClick = () => {
     if (missingItems.length > 0) {
@@ -180,14 +230,15 @@ export default function EditorPage() {
     setMobileTab('edit');
   };
 
+  // Zoom Handlers
   const zoomIn = () => setZoomLevel(prev => Math.min(prev + 0.1, 1.3));
   const zoomOut = () => setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
   const resetZoom = () => setZoomLevel(0.85);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#F8FAFC] overflow-hidden text-gray-900 font-sans box-border">
-
-      {/* 1. Header Navigation Bar */}
+    <div className="h-screen flex flex-col bg-[#F7F8FA] overflow-hidden">
+      
+      {/* 1. Header Toolbar */}
       <EditorHeader
         title={formData.title}
         onTitleChange={(title) => setFormData(prev => ({ ...prev, title }))}
@@ -197,7 +248,10 @@ export default function EditorPage() {
         onMobileTabChange={setMobileTab}
         onOpenProfessionModal={() => setShowProfessionModal(true)}
         onOpenTemplateModal={() => setShowTemplateModal(true)}
+        onOpenResumeStoreModal={() => setShowResumeStoreModal(true)}
         onDownloadClick={handleDownloadClick}
+        onSubmit={handleBackendSubmit}
+        isSubmitting={isSubmitting}
       />
 
       {/* 2. Global Feedback Toast */}
@@ -242,7 +296,7 @@ export default function EditorPage() {
           </div>
         </div>
 
-        {/* Right Preview Panel */}
+        {/* Right Preview Panel (Clean & Focused) */}
         <div className={`w-full md:w-[52%] lg:w-[55%] xl:w-[58%] h-full overflow-y-auto bg-slate-200/70 p-6 md:p-8 hide-scrollbar flex flex-col items-center relative box-border ${mobileTab === 'preview' ? 'block' : 'hidden md:flex'
           }`}>
 
@@ -281,6 +335,30 @@ export default function EditorPage() {
           onSelectTemplate={(templateId) => setFormData(prev => ({ ...prev, template: templateId }))}
           onDownload={handleDownloadClick}
           onClose={() => setShowTemplateModal(false)}
+        />
+      )}
+
+      {showAtsModal && (
+        <AtsScoreModal
+          isOpen={showAtsModal}
+          formData={formData}
+          backendId={submittedBackendId}
+          onDownload={handlePrint}
+          onOpenStore={() => setShowResumeStoreModal(true)}
+          onClose={() => setShowAtsModal(false)}
+        />
+      )}
+
+      {showResumeStoreModal && (
+        <ResumeStoreModal
+          isOpen={showResumeStoreModal}
+          currentData={formData}
+          onLoadResume={(loaded) => setFormData(loaded)}
+          onDownloadResume={(resData) => {
+            setFormData(resData);
+            setTimeout(() => handlePrint(), 300);
+          }}
+          onClose={() => setShowResumeStoreModal(false)}
         />
       )}
 

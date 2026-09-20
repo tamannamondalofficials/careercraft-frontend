@@ -7,7 +7,8 @@ import {
   Sparkles,
   Edit3, 
   Eye, 
-  Download 
+  Download,
+  FolderGit2
 } from 'lucide-react';
 import { TEMPLATE_OPTIONS } from '@/constants/templates';
 
@@ -20,7 +21,10 @@ interface EditorHeaderProps {
   onMobileTabChange: (tab: 'edit' | 'preview') => void;
   onOpenProfessionModal: () => void;
   onOpenTemplateModal: () => void;
+  onOpenResumeStoreModal?: () => void;
   onDownloadClick: () => void;
+  onSubmit?: () => void;
+  isSubmitting?: boolean;
 }
 
 export const EditorHeader: React.FC<EditorHeaderProps> = ({
@@ -32,15 +36,18 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
   onMobileTabChange,
   onOpenProfessionModal,
   onOpenTemplateModal,
-  onDownloadClick
+  onOpenResumeStoreModal,
+  onDownloadClick,
+  onSubmit,
+  isSubmitting = false
 }) => {
   const currentTemplateObj = TEMPLATE_OPTIONS.find(t => t.id === currentTemplateId) || TEMPLATE_OPTIONS[0];
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 px-6 md:px-8 lg:px-10 flex items-center justify-between shrink-0 shadow-xs z-30 box-border">
+    <header className="h-16 bg-white border-b border-gray-200 px-4 sm:px-6 md:px-8 lg:px-10 flex items-center justify-between shrink-0 shadow-xs z-30 box-border">
       {/* Left: Brand Logo & Title */}
-      <div className="flex items-center gap-4 sm:gap-6">
-        <Link href="/" className="flex items-center gap-2.5 text-indigo-600 hover:text-indigo-700 transition-colors shrink-0">
+      <div className="flex items-center gap-3 sm:gap-6">
+        <Link href="/" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 transition-colors shrink-0">
           <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm shrink-0">
             <FileText size={20} strokeWidth={2.5} />
           </div>
@@ -87,8 +94,20 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
       </div>
       
       {/* Right Actions Bar */}
-      <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
         
+        {/* Resume Store Modal Button */}
+        {onOpenResumeStoreModal && (
+          <button
+            onClick={onOpenResumeStoreModal}
+            className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-gray-800 bg-gray-50 hover:bg-gray-100 border border-gray-300 px-3 py-2 rounded-xl transition-all hover:border-indigo-300 cursor-pointer shadow-2xs"
+            title="Open your saved resumes store"
+          >
+            <FolderGit2 size={14} className="text-indigo-600" />
+            <span className="hidden md:inline">Resume Store</span>
+          </button>
+        )}
+
         {/* Multi-Profession Sample Presets Button */}
         <button
           onClick={onOpenProfessionModal}
@@ -96,26 +115,44 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
           title="Load sample resumes for various professions"
         >
           <Sparkles size={14} className="text-indigo-600" />
-          <span>Sample Presets</span>
+          <span>Presets</span>
         </button>
 
         {/* Template Switcher Button */}
         <button 
           onClick={onOpenTemplateModal}
-          className="flex items-center gap-1.5 text-xs font-semibold text-gray-800 bg-gray-50 hover:bg-gray-100 border border-gray-300 px-3 py-2 rounded-xl transition-all hover:border-indigo-300 cursor-pointer shadow-2xs"
+          className="flex items-center gap-1.5 text-xs font-semibold text-gray-800 bg-gray-50 hover:bg-gray-100 border border-gray-300 px-2.5 sm:px-3 py-2 rounded-xl transition-all hover:border-indigo-300 cursor-pointer shadow-2xs"
         >
           <LayoutTemplate size={14} className="text-indigo-600" />
-          <span className="hidden sm:inline">Template: </span>
+          <span className="hidden md:inline">Template: </span>
           <span className="text-indigo-700 font-bold">{currentTemplateObj.name.split(' ')[0]}</span>
         </button>
+
+        {/* Submit & ATS Score Button in Header */}
+        {onSubmit && (
+          <button
+            onClick={onSubmit}
+            disabled={isSubmitting}
+            className="flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3.5 py-2 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer disabled:opacity-50 active:scale-95 shrink-0"
+            title="Submit resume to database and view your instant ATS Score"
+          >
+            {isSubmitting ? (
+              <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Sparkles size={14} className="text-emerald-100" />
+            )}
+            <span className="hidden sm:inline">{isSubmitting ? 'Saving...' : 'Submit & Score'}</span>
+            <span className="sm:hidden">Submit</span>
+          </button>
+        )}
 
         {/* Primary Action Button: Download PDF */}
         <button 
           onClick={onDownloadClick}
-          className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl shadow-sm hover:shadow transition-all active:scale-95 cursor-pointer shrink-0"
+          className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-3 sm:px-4 py-2 rounded-xl shadow-sm hover:shadow transition-all active:scale-95 cursor-pointer shrink-0"
           aria-label="Download Resume as PDF"
         >
-          <Download size={15} />
+          <Download size={14} />
           <span className="hidden sm:inline">Download PDF</span>
           <span className="sm:hidden">PDF</span>
         </button>
@@ -124,7 +161,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
         <div className="flex md:hidden bg-gray-100 p-1 rounded-lg border border-gray-200">
           <button
             onClick={() => onMobileTabChange('edit')}
-            className={`flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+            className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
               mobileTab === 'edit' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-600'
             }`}
           >
@@ -133,7 +170,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
           </button>
           <button
             onClick={() => onMobileTabChange('preview')}
-            className={`flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+            className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
               mobileTab === 'preview' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-600'
             }`}
           >
